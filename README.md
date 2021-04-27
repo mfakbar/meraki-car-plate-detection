@@ -12,7 +12,7 @@
 ## Workflow
 ![Image of workflow](https://github.com/mfakbar/meraki-car-plate-detection/blob/main/workflow-diagram.jpg)
 
-## Instruction
+## Instructions
 1. Clone the repository.
 2. Setup and install all the requirements - optionally, use venv to isolate the project.
 3. Complete the setup of Google Cloud Vision API.
