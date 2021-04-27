@@ -10,4 +10,4 @@
 - Python setup instruction (https://cloud.google.com/vision/docs/quickstart-client-libraries)
 
 ## Workflow
-![Image of workflow](https://github.com/mfakbar/meraki-car-plate-detection/blob/main/Workflow.jpg)
+![Image of workflow](https://github.com/mfakbar/meraki-car-plate-detection/blob/main/workflow-diagram.jpg)
