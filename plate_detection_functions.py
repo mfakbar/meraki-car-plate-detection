@@ -59,6 +59,11 @@ def detect_labels_uri(uri):
 
     return detectedLabel
 
-
-# tes = detect_text_uri('https://spn18.meraki.com/stream/jpeg/snapshot/c5dde2866e2e56e8VHNDEzYjFkYTU3NjFhZTkyMmJhMDk3MmNlNTc2Y2VhNGQ0MTY0ZTMwYzg5ODhmNDhkOGZjZDA4MTU0MjEyNGJjYmgkxrEKtqcshsTy2h91T0ky5WogYAGRaHoK-Z77uouidrCjJImmBeFcV4InAllwX0aQ9Z7clpxc0Doz0TIDtU5tSQ6zhc57IpeVNmzfaUxYUSJPD66Bo-Rvh9T6T0hduhbYgMY7hODmv-XG3w_yYCKRspKhBnjwFlrdkF_trju-iii4tBgI66kj-qzO-uS3N5J____IGGhfpkz2XUzr4uW_e_48pGaXYmNo0V3IPVrX')
-# print(tes)
+def filter_labels(labels, lst):
+    for label in labels:
+        for part in lst:
+            if label.description == part:
+                print('there is a matching label in snapshot')
+                return True
+    print('there is no matching label in snapshot')
+    return False
