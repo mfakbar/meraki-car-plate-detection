@@ -41,14 +41,14 @@ def webhook():
             deviceName = payload['deviceName']
             alertTypeId = payload['alertTypeId']
             occurredAt = payload['occurredAt']
-            imageUrl = payload['alertData']['imageUrl']
 
             # generate snapshot url
             if alertTypeId == 'motion_alert':
                 mvDashboard = meraki.DashboardAPI(MV_API_KEY)
                 snapResponse = mvDashboard.camera.generateDeviceCameraSnapshot(
                     deviceSerial, timestamp=occurredAt)
-                print("Snapshot url is generated = ", snapResponse)
+                print("Snapshot url is generated = ", snapResponse,
+                      '\nMotion occured at = ', occurredAt)
             else:
                 print('Not a motion alert. Failed to generate snapshot url.')
 
@@ -58,10 +58,10 @@ def webhook():
                 time.sleep(3)
 
                 # check if snapshot is accessible
-                image = requests.get(snapResponse['url'])
+                image_response = requests.get(snapResponse['url'])
 
                 # If HTTP code 200 (OK) is returned, quit the loop and continue
-                if image.status_code == 200:
+                if image_response.status_code == 200:
                     break
                 else:
                     print(
