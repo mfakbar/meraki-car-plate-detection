@@ -41,7 +41,6 @@ def webhook():
             deviceName = payload['deviceName']
             alertTypeId = payload['alertTypeId']
             occurredAt = payload['occurredAt']
-            imageUrl = payload['alertData']['imageUrl']
 
             # generate snapshot url
             if alertTypeId == 'motion_alert':
