@@ -58,7 +58,3 @@ def detect_labels_uri(uri):
                 response.error.message))
 
     return detectedLabel
-
-
-# tes = detect_text_uri('https://spn18.meraki.com/stream/jpeg/snapshot/c5dde2866e2e56e8VHNDEzYjFkYTU3NjFhZTkyMmJhMDk3MmNlNTc2Y2VhNGQ0MTY0ZTMwYzg5ODhmNDhkOGZjZDA4MTU0MjEyNGJjYmgkxrEKtqcshsTy2h91T0ky5WogYAGRaHoK-Z77uouidrCjJImmBeFcV4InAllwX0aQ9Z7clpxc0Doz0TIDtU5tSQ6zhc57IpeVNmzfaUxYUSJPD66Bo-Rvh9T6T0hduhbYgMY7hODmv-XG3w_yYCKRspKhBnjwFlrdkF_trju-iii4tBgI66kj-qzO-uS3N5J____IGGhfpkz2XUzr4uW_e_48pGaXYmNo0V3IPVrX')
-# print(tes)
