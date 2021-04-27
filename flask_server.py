@@ -58,10 +58,10 @@ def webhook():
                 time.sleep(3)
 
                 # check if snapshot is accessible
-                image = requests.get(snapResponse['url'])
+                image_response = requests.get(snapResponse['url'])
 
                 # If HTTP code 200 (OK) is returned, quit the loop and continue
-                if image.status_code == 200:
+                if image_response.status_code == 200:
                     break
                 else:
                     print(
