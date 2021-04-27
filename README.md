@@ -8,3 +8,6 @@
 ## Setup Google Cloud Vision API
 - OCR guide (https://cloud.google.com/vision/docs/ocr)
 - Python setup instruction (https://cloud.google.com/vision/docs/quickstart-client-libraries)
+
+## Workflow
+![Image of workflow](https://github.com/mfakbar/meraki-car-plate-detection/blob/main/Workflow.jpg)
