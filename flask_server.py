@@ -48,7 +48,8 @@ def webhook():
                 mvDashboard = meraki.DashboardAPI(MV_API_KEY)
                 snapResponse = mvDashboard.camera.generateDeviceCameraSnapshot(
                     deviceSerial, timestamp=occurredAt)
-                print("Snapshot url is generated = ", snapResponse)
+                print("Snapshot url is generated = ", snapResponse,
+                      '\nMotion occured at = ', occurredAt)
             else:
                 print('Not a motion alert. Failed to generate snapshot url.')
 
