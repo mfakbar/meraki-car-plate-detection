@@ -2,4 +2,4 @@ venv/
 __pycache__/
 .env
 .DS_Store
-gcp-service-account-file.json
+cloud_api_key.json
