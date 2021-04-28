@@ -58,15 +58,13 @@ def detect_labels_uri(uri):
                 response.error.message))
 
     return detectedLabel
-<<<<<<< HEAD
+
 
 def filter_labels(labels, lst):
     for label in labels:
         for part in lst:
-            if label.description == part:
+            if label == part:
                 print('there is a matching label in snapshot')
                 return True
     print('there is no matching label in snapshot')
     return False
-=======
->>>>>>> f8d2b6c32cef489741ec886bb0bff5efb8bab6f7

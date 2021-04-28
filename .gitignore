@@ -1,7 +1,6 @@
-# test
-venv/
+myvenv/
 __pycache__/
 .env
 .DS_Store
 *.log
-gcp-service-account-file.json
+gcp-service-account.json
