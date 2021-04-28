@@ -1,10 +1,7 @@
 # Flask server as webhook receiver > then triggers a series of scripts
 
 from flask import Flask, request, Response, json
-import requests
-import json
 import meraki
-from google.cloud import vision
 import time
 import os
 from dotenv import load_dotenv
@@ -51,6 +48,7 @@ def webhook():
                       '\nMotion occured at = ', occurredAt)
             else:
                 print('Not a motion alert. Failed to generate snapshot url.')
+                exit()
 
             # check if the url is accessible
             for _ in range(5):
@@ -65,7 +63,7 @@ def webhook():
                     break
                 else:
                     print(
-                        f"Could not access snapshot for camera {deviceSerial} right now")
+                        f"Could not access snapshot for camera {deviceSerial} right now. Wait for 3 sec.")
                 continue
 
             # detecting car plate from snapshot url
