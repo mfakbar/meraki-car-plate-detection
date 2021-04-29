@@ -41,11 +41,11 @@ This code run a local server that will recognize a car registration plate whenev
    1. This is based on which port the Flask server is running in step 5.1. In this example it's port 5000.
    2. Once completed, we should be able to see publicly available link that translates the localhost address in step 5.1 to a publicly available https link (e.g., https://XXXXXXXXXXXX.ngrok.io).
 7. In Meraki dashboard >> Alerts >> Webhook setting, insert the ngrok link from step 6.2 as webhook endpoint, with `/webhook` appended into the link (e.g., https://XXXXXXXXXXXX.ngrok.io/webhook).
-   1. Choose a shared secret key and update the MV_SHARED_KEY in `.env` file with the correct one.
+   1. Choose a shared secret key and update the `MV_SHARED_KEY` in `.env` file with the correct one.
    2. Add this new webhook profile to the custom recipient for motion alerts.
 8. Run JSON-server database
 
          json-server db_server.json
-   1. Once completed, we should be able to see the localhost address where the database server is running (e.g., 'http://localhost:3000'). Update the DB_HOST in `.env` file with this address.
+   1. Once completed, we should be able to see the localhost address where the database server is running (e.g., 'http://localhost:3000'). Update the `DB_HOST` in `.env` file with this address.
 9.  Optionally, edit and/or use `user_input_dummy.py` to mimic json data from customer input, on a mobile app for example, that will be sent to the order database in JSON-server. Or use Postman for this.
 10. Test if the Flask server is ready to receive a Meraki motion alert webhook, and trigger the plate detection process.
