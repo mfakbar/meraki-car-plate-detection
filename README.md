@@ -1,4 +1,4 @@
-# Introduction
+# Car plate recognition using Meraki MV camera
 This code run a local server that will recognize a car registration plate whenever Meraki MV camera detect a motion related to car/vehicle. This event will also trigger a Webex notification.
 
 ## Components
