@@ -79,7 +79,7 @@ def webhook():
             labelList = ['Vehicle', 'Vehicle registration plate', 'Car']
             filter_labels(detectedLabel, labelList)
 
-            # if car plate is not detected, send snapshot url to webex for manual check
+            # if car plate is not detected, send snapshot url to webex for manual check.
             # to minimize overhead, notification only include car/vehicle-related label
 
             # labelCheck = any(item in detectedLabel for item in labelFilter)
