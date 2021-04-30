@@ -18,10 +18,6 @@ DB_HOST = os.getenv('DB_HOST')
 dbCarUrl = DB_HOST+'/car_event'
 dbOrderUrl = DB_HOST+'/order'
 
-# define label for filter out notification
-labelFilter = ['Vehicle registration plate',
-               'Automotive tire', 'Vehicle', 'Car', 'Motor vehicle']
-
 # Flask server setup
 app = Flask(__name__)
 
@@ -68,7 +64,6 @@ def webhook():
 
             # detecting car plate from snapshot url
             detectedPlate = detect_text_uri(snapResponse['url'])
-            # detectedPlate = 'MY70 BMW'
             print("Car plate detected = ", detectedPlate)
 
             # extracting labels from snapshot url
