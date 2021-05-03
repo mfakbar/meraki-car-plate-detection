@@ -1,15 +1,14 @@
 # Flask server as webhook receiver > then triggers a series of scripts
 
 from flask import Flask, request, Response, json
-import requests
-import json
 import meraki
-from google.cloud import vision
 import time
 import os
 from dotenv import load_dotenv
 from db_functions import *
 from plate_detection_functions import *
+from webexteamssdk import WebexTeamsAPI
+
 
 # search .env file and load environment variable
 load_dotenv()
@@ -27,6 +26,11 @@ labelFilter = ['Vehicle registration plate',
 
 # Flask server setup
 app = Flask(__name__)
+
+
+# Cisco Webex Bot Token
+bot_token = "enter the token here"
+api = WebexTeamsAPI(access_token=bot_token)
 
 
 @app.route('/webhook', methods=['POST'])
@@ -51,6 +55,7 @@ def webhook():
                       '\nMotion occured at = ', occurredAt)
             else:
                 print('Not a motion alert. Failed to generate snapshot url.')
+                exit()
 
             # check if the url is accessible
             for _ in range(5):
@@ -65,7 +70,7 @@ def webhook():
                     break
                 else:
                     print(
-                        f"Could not access snapshot for camera {deviceSerial} right now")
+                        f"Could not access snapshot for camera {deviceSerial} right now. Wait for 3 sec.")
                 continue
 
             # detecting car plate from snapshot url
@@ -77,7 +82,11 @@ def webhook():
             detectedLabel = detect_labels_uri(snapResponse['url'])
             print("Snapshot labels detected = ", detectedLabel)
 
-            # if car plate is not detected, send snapshot url to webex for manual check
+            # filter the snapshot with labels
+            labelList = ['Vehicle', 'Vehicle registration plate', 'Car']
+            filter_labels(detectedLabel, labelList)
+
+            # if car plate is not detected, send snapshot url to webex for manual check.
             # to minimize overhead, notification only include car/vehicle-related label
 
             # labelCheck = any(item in detectedLabel for item in labelFilter)
@@ -105,11 +114,32 @@ def webhook():
                     print('The most recent order that match ',
                           plate, '= ', searchOrder)
 
-                    ##### to-do: insert webex notification here #####
+                    # Notify WebEx
+                    try:
+                        teams_message = "Your customer, {}".format(searchOrder['Customer'])
+                        teams_message += " , with car plate number: {}".format(
+                            searchOrder['car_plate'])
+                        teams_message += "has arrived \n \n"
+                        teams_message += "Image of the car detected: {}\n".format(
+                            snapResponse['url'])
+                    except:
+                        teams_message = 'There was an error'
+
+                    to = "enter_your_email_id"
+                    api.messages.create(toPersonEmail=to, markdown=teams_message)
 
                 else:
                     print("No order information match with ", plate)
-                    #### to-do: send url image to webex for manual investigation ####
+                    ### send url image to webex for manual investigation ####
+                    try:
+                        teams_message = "Error!! There was no match: {}\n".format(plate)
+                        teams_message += "Image of the car detected: {}\n".format(
+                            snapResponse['url'])
+                    except Exception:
+                        teams_message = 'There was an error'
+
+                    to = "email_id "
+                    api.messages.create(toPersonEmail=to, markdown=teams_message)
 
             return Response(status=200)
         else:
