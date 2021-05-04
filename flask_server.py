@@ -15,18 +15,17 @@ load_dotenv()
 MV_SHARED_KEY = os.getenv('MV_SHARED_KEY')
 MV_API_KEY = os.getenv('MV_API_KEY')
 DB_HOST = os.getenv('DB_HOST')
+WEBEX_TOKEN = os.getenv('WEBEX_TOKEN')
 
 # database url address
 dbCarUrl = DB_HOST+'/car_event'
 dbOrderUrl = DB_HOST+'/order'
 
+# webex destination
+webexTo = 'muakbar@cisco.com'
+
 # Flask server setup
 app = Flask(__name__)
-
-
-# Cisco Webex Bot Token
-bot_token = "enter the token here"
-api = WebexTeamsAPI(access_token=bot_token)
 
 
 @app.route('/webhook', methods=['POST'])
@@ -79,18 +78,18 @@ def webhook():
 
             # filter the snapshot with labels
             labelList = ['Vehicle', 'Vehicle registration plate', 'Car']
-            filter_labels(detectedLabel, labelList)
+
+            # Webex API
+            webexAPI = WebexTeamsAPI(access_token=WEBEX_TOKEN)
 
             # if car plate is not detected, send snapshot url to webex for manual check.
             # to minimize overhead, notification only include car/vehicle-related label
-
-            # labelCheck = any(item in detectedLabel for item in labelFilter)
+            # labelCheck = filter_labels(detectedLabel, labelList)
             # if detectedPlate == [] and labelCheck is True:
-            #     #### to-do: send url image to webex for manual investigation / security reason ####
+            ### to-do: send url image to webex for manual investigation / security reason ###
 
             # if car plate is detected, run series of process:
             # store car event in database > check order information > send webex notification
-
             # if detectedPlate != []:
             for plate in detectedPlate:
 
@@ -111,34 +110,36 @@ def webhook():
 
                     # Notify WebEx
                     try:
-                        teams_message = "Your customer, {}".format(searchOrder['Customer'])
+                        teams_message = "Your customer, {}".format(
+                            searchOrder['Customer'])
                         teams_message += " , with car plate number: {}".format(
                             searchOrder['car_plate'])
                         teams_message += "has arrived \n \n"
                         teams_message += "Image of the car detected: {}\n".format(
                             snapResponse['url'])
                     except:
-                        teams_message = 'There was an error'
+                        teams_message = 'There was a Webex error'
 
-                    to = "enter_your_email_id"
-                    api.messages.create(toPersonEmail=to, markdown=teams_message)
+                    webexAPI.messages.create(
+                        toPersonEmail=webexTo, markdown=teams_message)
 
                 else:
                     print("No order information match with ", plate)
-                    ### send url image to webex for manual investigation ####
+                    # if there is no match, send url image to webex for manual investigation
                     try:
-                        teams_message = "Error!! There was no match: {}\n".format(plate)
+                        teams_message = "Error!! There was no match: {}\n".format(
+                            plate)
                         teams_message += "Image of the car detected: {}\n".format(
                             snapResponse['url'])
                     except Exception:
-                        teams_message = 'There was an error'
+                        teams_message = 'There was a Webex error'
 
-                    to = "email_id "
-                    api.messages.create(toPersonEmail=to, markdown=teams_message)
+                    webexAPI.messages.create(
+                        toPersonEmail=webexTo, markdown=teams_message)
 
             return Response(status=200)
         else:
-            print("Invalid secret key")
+            print("Invalid Meraki webhook secret key")
     else:
         abort(400, 'Unauthorized action')
 
