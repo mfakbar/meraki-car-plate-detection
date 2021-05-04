@@ -56,6 +56,14 @@
       "car_plate": "MY70 BMW",
       "time": "2021-04-23T08:09:46Z",
       "id": 5
+    },
+    {
+      "customer": "Akbar",
+      "menu": "Burger",
+      "qty": 3,
+      "car_plate": "MY70 BMW",
+      "time": "2021-04-23T08:09:46Z",
+      "id": 6
     }
   ],
   "car_event": [
@@ -424,6 +432,30 @@
       "time": "2021-04-23T08:39:46Z",
       "location": "MV12-Alvin's home",
       "id": 61
+    },
+    {
+      "plate": "MY70 BMW",
+      "time": "2021-04-23T08:39:46Z",
+      "location": "MV12-Alvin's home",
+      "id": 62
+    },
+    {
+      "plate": "MY70 BMW",
+      "time": "2021-04-23T08:39:46Z",
+      "location": "MV12-Alvin's home",
+      "id": 63
+    },
+    {
+      "plate": "MY70 BMW",
+      "time": "2021-04-23T08:39:46Z",
+      "location": "MV12-Alvin's home",
+      "id": 64
+    },
+    {
+      "plate": "MY70 BMW",
+      "time": "2021-04-23T08:39:46Z",
+      "location": "MV12-Alvin's home",
+      "id": 65
     }
   ]
 }
