@@ -18,10 +18,6 @@ DB_HOST = os.getenv('DB_HOST')
 dbCarUrl = DB_HOST+'/car_event'
 dbOrderUrl = DB_HOST+'/order'
 
-# define label for filter out notification
-labelFilter = ['Vehicle registration plate',
-               'Automotive tire', 'Vehicle', 'Car', 'Motor vehicle']
-
 # Flask server setup
 app = Flask(__name__)
 
@@ -68,17 +64,22 @@ def webhook():
 
             # detecting car plate from snapshot url
             detectedPlate = detect_text_uri(snapResponse['url'])
-            # detectedPlate = 'MY70 BMW'
             print("Car plate detected = ", detectedPlate)
 
             # extracting labels from snapshot url
             detectedLabel = detect_labels_uri(snapResponse['url'])
             print("Snapshot labels detected = ", detectedLabel)
 
+<<<<<<< HEAD
             #filter the snapshot with labels
             filter_labels(labels, labelFilter)
+=======
+            # filter the snapshot with labels
+            labelList = ['Vehicle', 'Vehicle registration plate', 'Car']
+            filter_labels(detectedLabel, labelList)
+>>>>>>> 9802c277f3f88f44099ba2fdf8caac9540fbd324
 
-            # if car plate is not detected, send snapshot url to webex for manual check
+            # if car plate is not detected, send snapshot url to webex for manual check.
             # to minimize overhead, notification only include car/vehicle-related label
 
             # labelCheck = any(item in detectedLabel for item in labelFilter)
