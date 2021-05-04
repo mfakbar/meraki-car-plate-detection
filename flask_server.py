@@ -75,14 +75,8 @@ def webhook():
             detectedLabel = detect_labels_uri(snapResponse['url'])
             print("Snapshot labels detected = ", detectedLabel)
 
-<<<<<<< HEAD
             #filter the snapshot with labels
             filter_labels(labels, labelFilter)
-=======
-            # filter the snapshot with labels
-            labelList = ['Vehicle', 'Vehicle registration plate', 'Car']
-            filter_labels(detectedLabel, labelList)
->>>>>>> 26b340869aac35931169e1921f170c3662fe28f6
 
             # if car plate is not detected, send snapshot url to webex for manual check
             # to minimize overhead, notification only include car/vehicle-related label
