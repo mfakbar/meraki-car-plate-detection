@@ -30,6 +30,9 @@ app = Flask(__name__)
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
+    # wait for the car to be parked, while stopping the server from receiving webhook
+    # time.sleep(10)
+
     if request.method == 'POST' and request.headers['Content-Type'] == 'application/json':
         payload = request.json
         if payload['sharedSecret'] == MV_SHARED_KEY:
@@ -82,7 +85,7 @@ def webhook():
             # Webex API
             webexAPI = WebexTeamsAPI(access_token=WEBEX_TOKEN)
 
-            # if car plate is not detected, send snapshot url to webex for manual check.
+            # if car plate is not detected, send snapshot url to webex for manual check. Using dedicated space.
             # to minimize overhead, notification only include car/vehicle-related label
             # labelCheck = filter_labels(detectedLabel, labelList)
             # if detectedPlate == [] and labelCheck is True:
@@ -111,13 +114,14 @@ def webhook():
                     # Notify WebEx
                     try:
                         teams_message = "Your customer, {}".format(
-                            searchOrder['Customer'])
+                            searchOrder['customer'])
                         teams_message += " , with car plate number: {}".format(
                             searchOrder['car_plate'])
                         teams_message += "has arrived \n \n"
                         teams_message += "Image of the car detected: {}\n".format(
                             snapResponse['url'])
-                    except:
+                    except Exception as e:
+                        print(e)
                         teams_message = 'There was a Webex error'
 
                     webexAPI.messages.create(
@@ -126,12 +130,14 @@ def webhook():
                 else:
                     print("No order information match with ", plate)
                     # if there is no match, send url image to webex for manual investigation
+                    # send to dedicated space
                     try:
                         teams_message = "Error!! There was no match: {}\n".format(
                             plate)
                         teams_message += "Image of the car detected: {}\n".format(
                             snapResponse['url'])
-                    except Exception:
+                    except Exception as e:
+                        print(e)
                         teams_message = 'There was a Webex error'
 
                     webexAPI.messages.create(
