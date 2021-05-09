@@ -22,7 +22,7 @@ dbCarUrl = DB_HOST+'/car_event'
 dbOrderUrl = DB_HOST+'/order'
 
 # webex destination
-webexTo = 'muakbar@cisco.com'
+webexTo = 'webex email here'
 
 # boolean for filtering webhooks
 runScript = True
