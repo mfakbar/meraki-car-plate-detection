@@ -24,18 +24,27 @@ dbOrderUrl = DB_HOST+'/order'
 # webex destination
 webexTo = 'muakbar@cisco.com'
 
+# boolean for filtering webhooks
+runScript = True
+waitTime = 10  # seconds
+
 # Flask server setup
 app = Flask(__name__)
 
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
-    # wait for the car to be parked, while stopping the server from receiving webhook
-    # time.sleep(10)
-
     if request.method == 'POST' and request.headers['Content-Type'] == 'application/json':
         payload = request.json
         if payload['sharedSecret'] == MV_SHARED_KEY:
+
+            # to prevent the server from being flooded by alerts, filter the webhook
+            global runScript
+            if runScript == True:
+                runScript = False
+            else:
+                print('This webhook is filtered')
+                exit()
 
             # define variable
             networkId = payload['networkId']
@@ -44,13 +53,18 @@ def webhook():
             alertTypeId = payload['alertTypeId']
             occurredAt = payload['occurredAt']
 
+            # wait several seconds for the car to be parked, then take a snapshot
+            time.sleep(waitTime)
+            snapTime = addSeconds(occurredAt, waitTime)
+
             # generate snapshot url
             if alertTypeId == 'motion_alert':
                 mvDashboard = meraki.DashboardAPI(MV_API_KEY)
                 snapResponse = mvDashboard.camera.generateDeviceCameraSnapshot(
-                    deviceSerial, timestamp=occurredAt)
+                    deviceSerial, timestamp=snapTime)
                 print("Snapshot url is generated = ", snapResponse,
-                      '\nMotion occured at = ', occurredAt)
+                      '\nMotion occured at = ', occurredAt,
+                      '\nStable snapshot taken at = ', snapTime)
             else:
                 print('Not a motion alert. Failed to generate snapshot url.')
                 exit()
@@ -121,8 +135,7 @@ def webhook():
                         teams_message += "Image of the car detected: {}\n".format(
                             snapResponse['url'])
                     except Exception as e:
-                        print(e)
-                        teams_message = 'There was a Webex error'
+                        teams_message = 'The server received a webhook but there was a Webex error'
 
                     webexAPI.messages.create(
                         toPersonEmail=webexTo, markdown=teams_message)
@@ -137,15 +150,19 @@ def webhook():
                         teams_message += "Image of the car detected: {}\n".format(
                             snapResponse['url'])
                     except Exception as e:
-                        print(e)
-                        teams_message = 'There was a Webex error'
+                        teams_message = 'The server received a webhook but there was a Webex error'
 
                     webexAPI.messages.create(
                         toPersonEmail=webexTo, markdown=teams_message)
 
+            # reset the runScript for the next car event
+            runScript = True
+
             return Response(status=200)
+
         else:
-            print("Invalid Meraki webhook secret key")
+            print('Invalid Meraki secret key')
+
     else:
         abort(400, 'Unauthorized action')
 

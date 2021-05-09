@@ -1,6 +1,7 @@
 # functions related to JSON-server database
 import requests
 import json
+from datetime import datetime, timedelta
 
 
 # store car event to database
@@ -32,4 +33,12 @@ def get_order(url):
 
     response = requests.request("GET", url, headers=headers, data=payload)
 
-    return response.json()
+    return response.json()[0]
+
+
+# add seconds to a date time in str
+def addSeconds(timeString, second):
+    dateTimeObj = datetime.strptime(timeString[:19], "%Y-%m-%dT%H:%M:%S")
+    addSec = dateTimeObj + timedelta(seconds=second)
+    dateTimeISO = addSec.isoformat() + 'Z'
+    return dateTimeISO
