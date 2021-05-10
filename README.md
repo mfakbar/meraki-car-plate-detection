@@ -17,6 +17,7 @@ This code run a local server that will recognize a car registration plate whenev
 - [JSON-server](https://github.com/typicode/json-server)
 - [ngrok](https://ngrok.com/download)
 - [Meraki Dashboard API](https://pypi.org/project/meraki/)
+- [WebEx Bot](https://developer.webex.com)
 
 ## Google Vision API setup
 - [OCR guide](https://cloud.google.com/vision/docs/ocr)
@@ -31,6 +32,8 @@ This code run a local server that will recognize a car registration plate whenev
    2. `MV_API_KEY = 'YOUR MERAKI API KEY'` > from Meraki profile setting.
    3. `DB_HOST = 'JSON-SERVER LOCALHOST ADDRESS'` > local address+port where the JSON-server is running (e.g., 'http://localhost:3000'). To find out what local address our machine use, we will touch on this in step 8.
    4. `GOOGLE_APPLICATION_CREDENTIALS = 'service-account-file.json'` > service account json file path. The file is generated when we setup the Google Vision API.
+   5. `WEBEX_TOKEN = YOUR WEBEX BOT TOKEN'` > from https://developer.webex.com - Building Apps
+   
 5. Run flask server
 
          python flask_server.py
