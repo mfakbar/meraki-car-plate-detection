@@ -22,18 +22,19 @@ dbCarUrl = DB_HOST+'/car_event'
 dbOrderUrl = DB_HOST+'/order'
 
 # webex destination
-webexTo = 'webex email here'
+webexTo = 'muakbar@cisco.com'
 
 # boolean for filtering webhooks
-runScript = True
 waitTime = 10  # seconds
+intervalTime = 2  # seconds
 
 # Flask server setup
 app = Flask(__name__)
 
-#take a snapshot and return the snapshot resonponse
+
+# take a snapshot and return the snapshot resonponse
 def SnapshotAndUri(deviceSerial, occurredAt, snapTime):
-    #generate snapshot and perform analysis
+    # generate snapshot and perform analysis
     mvDashboard = meraki.DashboardAPI(MV_API_KEY)
     snapResponse = mvDashboard.camera.generateDeviceCameraSnapshot(
         deviceSerial, timestamp=snapTime)
@@ -55,7 +56,8 @@ def SnapshotAndUri(deviceSerial, occurredAt, snapTime):
                 f"Could not access snapshot for camera {deviceSerial} right now. Wait for 3 sec.")
         continue
 
-#filter the snapshot with label, if car or registration plate is detected, return true.
+
+# filter the snapshot with label, if car or registration plate is detected, return true.
 def VisionFiltering(url):
     # extracting labels from snapshot url
     detectedLabel = detect_labels_uri(url)
@@ -65,35 +67,14 @@ def VisionFiltering(url):
     boolResult = filter_labels(detectedLabel, labelList)
     return boolResult
 
-#Post notification to WebexTeamsAPI
-def PostToWebex(detectedPlate):
+# Post notification to WebexTeamsAPI
+def PostToWebex(snapResponse, searchOrder, detectedPlate):
     # Webex API
     webexAPI = WebexTeamsAPI(access_token=WEBEX_TOKEN)
 
-    # if car plate is not detected, send snapshot url to webex for manual check. Using dedicated space.
-    # to minimize overhead, notification only include car/vehicle-related label
-    # labelCheck = filter_labels(detectedLabel, labelList)
-    # if detectedPlate == [] and labelCheck is True:
-    ### to-do: send url image to webex for manual investigation / security reason ###
-
-    # if car plate is detected, run series of process:
-    # store car event in database > check order information > send webex notification
-    # if detectedPlate != []:
+    # if car plate and order information match, send notification to webex
     for plate in detectedPlate:
-        # store car event to database
-        newCarEntry = car_to_db(dbCarUrl, plate,
-                                occurredAt, deviceName)
-        print('New car entry has been stored in DB = ', newCarEntry)
-
-        # check if the detected car plate relate to existing order database
-        queryParam = '?car_plate=' + plate + \
-            '&_sort=id&_order=desc&_limit=1'  # search car plate by most recent entry
-        searchOrder = get_order(dbOrderUrl + queryParam)
-
-        # if car plate and order information match, send notification to webex
         if searchOrder != []:
-            print('The most recent order that match ',
-                  plate, '= ', searchOrder)
 
             # Notify WebEx
             try:
@@ -125,6 +106,7 @@ def PostToWebex(detectedPlate):
             webexAPI.messages.create(
                 toPersonEmail=webexTo, markdown=teams_message)
 
+
 @app.route('/webhook', methods=['POST'])
 def webhook():
     if request.method == 'POST' and request.headers['Content-Type'] == 'application/json':
@@ -138,27 +120,52 @@ def webhook():
             alertTypeId = payload['alertTypeId']
             occurredAt = payload['occurredAt']
 
-            #if motion_alert is received
+            # if motion_alert is received
             if alertTypeId == 'motion_alert':
                 # wait several seconds for the car to be parked
                 time.sleep(waitTime)
                 snapTime = addSeconds(occurredAt, waitTime)
 
-                #then take 5 snapshots
+                # then take 5 snapshots
                 for _ in range(5):
-                    snapResponse = SnapshotAndUri(deviceSerial, occurredAt, snapTime)
-                    #filter the snapshot for vehicle and carplate
+                    snapResponse = SnapshotAndUri(
+                        deviceSerial, occurredAt, snapTime)
+                    # filter the snapshot for vehicle and carplate
                     filterResult = VisionFiltering(snapResponse['url'])
                     if filterResult == True:
                         # detecting car plate from snapshot url
                         detectedPlate = detect_text_uri(snapResponse['url'])
                         print("Car plate detected = ", detectedPlate)
-                        #post result as webex notification
-                        PostToWebex(detectedPlate)
-                        continue
-                    #if no car or plate is detected just keep going
+
+                        # loop through the text detection result
+                        for plate in detectedPlate:
+                            # store car event to a database
+                            newCarEntry = car_to_db(
+                                dbCarUrl, plate, snapTime, deviceName)
+                            print('New car entry has been stored in DB = ', newCarEntry)
+
+                            #search for a plate match in the order datbase
+                            queryParam = '?car_plate=' + plate + \
+                                '&_sort=id&_order=desc&_limit=1'  # search car plate by most recent entry
+                            searchOrder = get_order(dbOrderUrl + queryParam)
+
+                            #if there is an order match, break from the loop
+                            if searchOrder != []:
+                                break
+                            #if there is no order match, wait a while and take the snapshot again
+                            else:
+                                time.sleep(intervalTime)
+                                snapTime = addSeconds(snapTime, intervalTime)
+                                continue
+
+                    # if no car or plate is detected within 5 tries just keep going
                     else:
+                        time.sleep(intervalTime)
+                        snapTime = addSeconds(snapTime, intervalTime)
                         continue
+
+                # post result as webex notification
+                PostToWebex(snapResponse, searchOrder, detectedPlate)
 
             else:
                 print('Not a motion alert. Failed to generate snapshot url.')
