@@ -46,7 +46,7 @@ def webhook():
                 print('This webhook is filtered')
                 exit()
 
-            # define variable
+            # define variable of the alert event
             networkId = payload['networkId']
             deviceSerial = payload['deviceSerial']
             deviceName = payload['deviceName']
@@ -68,15 +68,12 @@ def webhook():
             else:
                 print('Not a motion alert. Failed to generate snapshot url.')
                 exit()
-
             # check if the url is accessible
             for _ in range(5):
                 # wait for a short time until the snapshot is available
                 time.sleep(3)
-
                 # check if snapshot is accessible
                 image_response = requests.get(snapResponse['url'])
-
                 # If HTTP code 200 (OK) is returned, quit the loop and continue
                 if image_response.status_code == 200:
                     break
