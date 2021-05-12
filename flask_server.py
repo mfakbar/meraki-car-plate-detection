@@ -9,7 +9,6 @@ from db_functions import *
 from plate_detection_functions import *
 from webexteamssdk import WebexTeamsAPI
 
-
 # search .env file and load environment variable
 load_dotenv()
 MV_SHARED_KEY = os.getenv('MV_SHARED_KEY')
@@ -22,7 +21,8 @@ dbCarUrl = DB_HOST+'/car_event'
 dbOrderUrl = DB_HOST+'/order'
 
 # webex destination
-webexTo = 'Y2lzY29zcGFyazovL3VzL1JPT00vYWIxYjczMTAtOTFmNS0xMWViLWFiNDctZDc2MTU5NmE4ZGE4'
+#webexTo = 'Y2lzY29zcGFyazovL3VzL1JPT00vYWIxYjczMTAtOTFmNS0xMWViLWFiNDctZDc2MTU5NmE4ZGE4'
+webexTo = 'hungl2@cisco.com'
 
 # boolean for filtering webhooks
 runScript = True
@@ -31,7 +31,6 @@ intervalTime = 2  # seconds
 
 # Flask server setup
 app = Flask(__name__)
-
 
 # take a snapshot and return the snapshot resonponse
 def SnapshotAndUri(deviceSerial, occurredAt, snapTime):
@@ -56,7 +55,6 @@ def SnapshotAndUri(deviceSerial, occurredAt, snapTime):
             print(
                 f"Could not access snapshot for camera {deviceSerial} right now. Wait for 3 sec.")
         continue
-
 
 # filter the snapshot with label, if car or registration plate is detected, return true.
 def VisionFiltering(url):
@@ -90,7 +88,7 @@ def PostToWebex(snapResponse, searchOrder, detectedPlate):
                 teams_message = 'The server received a webhook but there was a Webex error'
 
             webexAPI.messages.create(
-                roomId=webexTo, markdown=teams_message)
+                toPersonEmail=webexTo, markdown=teams_message)
 
         else:
             print("No order information match with ", plate)
@@ -105,7 +103,7 @@ def PostToWebex(snapResponse, searchOrder, detectedPlate):
                 teams_message = 'The server received a webhook but there was a Webex error'
 
             webexAPI.messages.create(
-                roomId=webexTo, markdown=teams_message)
+                toPersonEmail=webexTo, markdown=teams_message)
 
 
 @app.route('/webhook', methods=['POST'])
@@ -127,9 +125,6 @@ def webhook():
 
             # if motion_alert is received
             if alertTypeId == 'motion_alert':
-                # wait several seconds for the car to be parked
-                #time.sleep(waitTime)
-                #snapTime = addSeconds(occurredAt, waitTime)
 
                 # then take 5 snapshots
                 for _ in range(5):
@@ -137,6 +132,8 @@ def webhook():
                         deviceSerial, occurredAt, snapTime)
                     # filter the snapshot for vehicle and carplate
                     filterResult = VisionFiltering(snapResponse['url'])
+
+                    #if there are relevant labels detected, run plate recognition
                     if filterResult == True:
                         # detecting car plate from snapshot url
                         detectedPlate = detect_text_uri(snapResponse['url'])
@@ -163,7 +160,7 @@ def webhook():
                                 snapTime = addSeconds(snapTime, intervalTime)
                                 continue
 
-                    # if no car or plate is detected within 5 tries just keep going
+                    # if no label is detected, wait and take snapshot again
                     else:
                         time.sleep(intervalTime)
                         snapTime = addSeconds(snapTime, intervalTime)
