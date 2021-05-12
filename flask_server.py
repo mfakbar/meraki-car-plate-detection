@@ -22,9 +22,10 @@ dbCarUrl = DB_HOST+'/car_event'
 dbOrderUrl = DB_HOST+'/order'
 
 # webex destination
-webexTo = 'muakbar@cisco.com'
+webexTo = 'Y2lzY29zcGFyazovL3VzL1JPT00vYWIxYjczMTAtOTFmNS0xMWViLWFiNDctZDc2MTU5NmE4ZGE4'
 
 # boolean for filtering webhooks
+runScript = True
 waitTime = 10  # seconds
 intervalTime = 2  # seconds
 
@@ -89,7 +90,7 @@ def PostToWebex(snapResponse, searchOrder, detectedPlate):
                 teams_message = 'The server received a webhook but there was a Webex error'
 
             webexAPI.messages.create(
-                toPersonEmail=webexTo, markdown=teams_message)
+                roomId=webexTo, markdown=teams_message)
 
         else:
             print("No order information match with ", plate)
@@ -104,7 +105,7 @@ def PostToWebex(snapResponse, searchOrder, detectedPlate):
                 teams_message = 'The server received a webhook but there was a Webex error'
 
             webexAPI.messages.create(
-                toPersonEmail=webexTo, markdown=teams_message)
+                roomId=webexTo, markdown=teams_message)
 
 
 @app.route('/webhook', methods=['POST'])
@@ -120,11 +121,15 @@ def webhook():
             alertTypeId = payload['alertTypeId']
             occurredAt = payload['occurredAt']
 
+            # wait several seconds for the car to be parked, then take a snapshot
+            time.sleep(waitTime)
+            snapTime = addSeconds(occurredAt, waitTime)
+
             # if motion_alert is received
             if alertTypeId == 'motion_alert':
                 # wait several seconds for the car to be parked
-                time.sleep(waitTime)
-                snapTime = addSeconds(occurredAt, waitTime)
+                #time.sleep(waitTime)
+                #snapTime = addSeconds(occurredAt, waitTime)
 
                 # then take 5 snapshots
                 for _ in range(5):
@@ -171,6 +176,8 @@ def webhook():
                 print('Not a motion alert. Failed to generate snapshot url.')
                 exit()
 
+            # reset the runScript for the next car event
+            runScript = True
             return Response(status=200)
 
         else:
