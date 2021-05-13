@@ -130,6 +130,14 @@ def webhook():
         payload = request.json
         if payload['sharedSecret'] == MV_SHARED_KEY:
 
+            # to prevent the server from being flooded by alerts, filter the webhook
+            global runScript
+            if runScript == True:
+                runScript = False
+            else:
+                print('This webhook is filtered')
+                exit()
+
             # define variable of the alert event
             networkId = payload['networkId']
             deviceSerial = payload['deviceSerial']
@@ -191,6 +199,7 @@ def webhook():
 
             else:
                 print('Not a motion alert. Failed to generate snapshot url.')
+                runScript = True
                 exit()
 
             # reset the runScript for the next car event
