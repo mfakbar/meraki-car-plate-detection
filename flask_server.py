@@ -72,38 +72,51 @@ def PostToWebex(snapResponse, searchOrder, detectedPlate):
     webexAPI = WebexTeamsAPI(access_token=WEBEX_TOKEN)
 
     # if car plate and order information match, send notification to webex
-    for plate in detectedPlate:
-        if searchOrder != []:
+    if detectedPlate != []:
+        for plate in detectedPlate:
+            if searchOrder != []:
+                # Notify WebEx
+                try:
+                    teams_message = "Your customer, {}".format(
+                        searchOrder['customer'])
+                    teams_message += " , with car plate number: {}".format(
+                        searchOrder['car_plate'])
+                    teams_message += "has arrived \n \n"
+                    teams_message += "Image of the car detected: {}\n".format(
+                        snapResponse['url'])
+                except Exception as e:
+                    teams_message = 'The server received a webhook but there was a Webex error'
 
-            # Notify WebEx
-            try:
-                teams_message = "Your customer, {}".format(
-                    searchOrder['customer'])
-                teams_message += " , with car plate number: {}".format(
-                    searchOrder['car_plate'])
-                teams_message += "has arrived \n \n"
-                teams_message += "Image of the car detected: {}\n".format(
-                    snapResponse['url'])
-            except Exception as e:
-                teams_message = 'The server received a webhook but there was a Webex error'
+                webexAPI.messages.create(
+                    toPersonEmail=webexTo, markdown=teams_message)
 
-            webexAPI.messages.create(
-                toPersonEmail=webexTo, markdown=teams_message)
+            else:
+                print("No order information match with ", plate)
+                # if there is no match, send url image to webex for manual investigation
+                # send to dedicated space
+                try:
+                    teams_message = "Error!! There was no match: {}\n".format(
+                        plate)
+                    teams_message += "Image of the car detected: {}\n".format(
+                        snapResponse['url'])
+                except Exception as e:
+                    teams_message = 'The server received a webhook but there was a Webex error'
 
-        else:
-            print("No order information match with ", plate)
-            # if there is no match, send url image to webex for manual investigation
-            # send to dedicated space
-            try:
-                teams_message = "Error!! There was no match: {}\n".format(
-                    plate)
-                teams_message += "Image of the car detected: {}\n".format(
-                    snapResponse['url'])
-            except Exception as e:
-                teams_message = 'The server received a webhook but there was a Webex error'
+                webexAPI.messages.create(
+                    toPersonEmail=webexTo, markdown=teams_message)
+    #if no car plate was detected, send in snapshot url of motion event for manual investigation
+    else:
+        print("no car plate detected")
+        try:
+            teams_message = "No vehicle registration plate detected:\n"
+            teams_message += "Image of the motion event: {}\n".format(
+                snapResponse['url'])
+        except Exception as e:
+            teams_message = 'The server received a webhook but there was a Webex error'
 
-            webexAPI.messages.create(
-                toPersonEmail=webexTo, markdown=teams_message)
+        webexAPI.messages.create(
+            toPersonEmail=webexTo, markdown=teams_message)
+
 
 
 @app.route('/webhook', methods=['POST'])
@@ -125,6 +138,8 @@ def webhook():
 
             # if motion_alert is received
             if alertTypeId == 'motion_alert':
+                searchOrder = []
+                detectedPlate = []
 
                 # then take 5 snapshots
                 for _ in range(5):
