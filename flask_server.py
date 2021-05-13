@@ -123,7 +123,6 @@ def PostToWebex(snapResponse, searchOrder, detectedPlate):
             toPersonEmail=webexTo, markdown=teams_message)
 
 
-
 @app.route('/webhook', methods=['POST'])
 def webhook():
     if request.method == 'POST' and request.headers['Content-Type'] == 'application/json':
