@@ -89,7 +89,7 @@ def PostToWebex(snapResponse, searchOrder, detectedPlate):
                     teams_message = 'The server received a webhook but there was a Webex error'
 
                 webexAPI.messages.create(
-                    toPersonEmail=member, markdown=teams_message)
+                    toPersonEmail=webexTo, markdown=teams_message)
                 #send notification to a list of recipients
                 for member in webexRecipients:
                     webexAPI.messages.create(
