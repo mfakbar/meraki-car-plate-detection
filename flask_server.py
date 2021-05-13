@@ -23,6 +23,7 @@ dbOrderUrl = DB_HOST+'/order'
 # webex destination
 #webexTo = 'Y2lzY29zcGFyazovL3VzL1JPT00vYWIxYjczMTAtOTFmNS0xMWViLWFiNDctZDc2MTU5NmE4ZGE4'
 webexTo = 'hungl2@cisco.com'
+webexRecipients = ['hungl2@cisco.com', 'swsingh3@cisco.com', 'alvlau@cisco.com']
 
 # boolean for filtering webhooks
 runScript = True
@@ -88,7 +89,11 @@ def PostToWebex(snapResponse, searchOrder, detectedPlate):
                     teams_message = 'The server received a webhook but there was a Webex error'
 
                 webexAPI.messages.create(
-                    toPersonEmail=webexTo, markdown=teams_message)
+                    toPersonEmail=member, markdown=teams_message)
+                #send notification to a list of recipients
+                for member in webexRecipients:
+                    webexAPI.messages.create(
+                        toPersonEmail=member, markdown=teams_message)
 
             else:
                 print("No order information match with ", plate)
