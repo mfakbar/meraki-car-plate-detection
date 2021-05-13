@@ -23,7 +23,8 @@
       "menu": "Fries",
       "qty": 3,
       "car_plate": "T-XXX-DEVNET",
-      "time": "2021-04-23T08:09:46Z"
+      "time": "2021-04-23T08:09:46Z",
+      "Serviced": false
     },
     {
       "id": 2,
@@ -31,7 +32,8 @@
       "menu": "Fries",
       "qty": 3,
       "car_plate": "MY70 BMW",
-      "time": "2021-04-23T08:09:46Z"
+      "time": "2021-04-23T08:09:46Z",
+      "Serviced": false
     },
     {
       "id": 3,
@@ -39,7 +41,8 @@
       "menu": "Fries",
       "qty": 3,
       "car_plate": "MY70 BMW",
-      "time": "2021-04-23T08:09:46Z"
+      "time": "2021-04-23T08:09:46Z",
+      "Serviced": false
     },
     {
       "customer": "Bob",
@@ -47,7 +50,8 @@
       "qty": 3,
       "car_plate": "MY70 BMW",
       "time": "2021-04-23T08:09:46Z",
-      "id": 4
+      "id": 4,
+      "Serviced": false
     },
     {
       "customer": "Akbar",
@@ -55,7 +59,8 @@
       "qty": 3,
       "car_plate": "MY70 BMW",
       "time": "2021-04-23T08:09:46Z",
-      "id": 5
+      "id": 5,
+      "Serviced": false
     },
     {
       "customer": "Akbar",
@@ -63,7 +68,8 @@
       "qty": 3,
       "car_plate": "MY70 BMW",
       "time": "2021-04-23T08:09:46Z",
-      "id": 6
+      "id": 6,
+      "Serviced": false
     },
     {
       "customer": "Akbar",
@@ -71,7 +77,8 @@
       "qty": 3,
       "car_plate": "BMW I8",
       "time": "2021-04-23T08:09:46Z",
-      "id": 7
+      "id": 7,
+      "Serviced": false
     },
     {
       "customer": "Akbar",
@@ -79,7 +86,8 @@
       "qty": 3,
       "car_plate": "BMW IB",
       "time": "2021-04-23T08:09:46Z",
-      "id": 8
+      "id": 8,
+      "Serviced": false
     },
     {
       "customer": "Akbar",
@@ -87,7 +95,8 @@
       "qty": 3,
       "car_plate": "BMW 1B",
       "time": "2021-04-23T08:09:46Z",
-      "id": 9
+      "id": 9,
+      "Serviced": false
     },
     {
       "customer": "Akbar",
@@ -95,7 +104,8 @@
       "qty": 3,
       "car_plate": "BMW 18",
       "time": "2021-04-23T08:09:46Z",
-      "id": 10
+      "id": 10,
+      "Serviced": false
     },
     {
       "customer": "Akbar",
@@ -103,7 +113,8 @@
       "qty": 3,
       "car_plate": "BMW 8",
       "time": "2021-04-23T08:09:46Z",
-      "id": 11
+      "id": 11,
+      "Serviced": false
     },
     {
       "customer": "Akbar",
@@ -111,7 +122,8 @@
       "qty": 3,
       "car_plate": "BMW 10",
       "time": "2021-04-23T08:09:46Z",
-      "id": 12
+      "id": 12,
+      "Serviced": false
     },
     {
       "customer": "Akbar",
@@ -119,7 +131,8 @@
       "qty": 3,
       "car_plate": "BMW I0",
       "time": "2021-04-23T08:09:46Z",
-      "id": 13
+      "id": 13,
+      "Serviced": false
     },
     {
       "customer": "Akbar",
@@ -127,7 +140,8 @@
       "qty": 3,
       "car_plate": "CZ20 FSE",
       "time": "2021-04-23T08:09:46Z",
-      "id": 14
+      "id": 14,
+      "Serviced": false
     },
     {
       "customer": "Bob",
@@ -135,7 +149,8 @@
       "qty": 3,
       "car_plate": "CZ20 FSE",
       "time": "2021-04-24T08:09:46Z",
-      "id": 15
+      "id": 15,
+      "Serviced": false
     }
   ],
   "car_event": [
@@ -1578,6 +1593,66 @@
       "time": "2021-05-11T09:54:41Z",
       "location": "MV12-Alvin's home",
       "id": 240
+    },
+    {
+      "plate": "BMW 18",
+      "time": "2021-05-13T05:17:30Z",
+      "location": "MV12-Alvin's home",
+      "id": 241
+    },
+    {
+      "plate": "BMW 18",
+      "time": "2021-05-13T05:17:30Z",
+      "location": "MV12-Alvin's home",
+      "id": 242
+    },
+    {
+      "plate": "BMW 18",
+      "time": "2021-05-13T05:17:30Z",
+      "location": "MV12-Alvin's home",
+      "id": 243
+    },
+    {
+      "plate": "BMW 18",
+      "time": "2021-05-13T05:17:30Z",
+      "location": "MV12-Alvin's home",
+      "id": 244
+    },
+    {
+      "plate": "BMW 18",
+      "time": "2021-05-13T05:17:30Z",
+      "location": "MV12-Alvin's home",
+      "id": 245
+    },
+    {
+      "plate": "BMW 18",
+      "time": "2021-05-13T05:23:08Z",
+      "location": "MV12-Alvin's home",
+      "id": 246
+    },
+    {
+      "plate": "BMW 18",
+      "time": "2021-05-13T05:23:08Z",
+      "location": "MV12-Alvin's home",
+      "id": 247
+    },
+    {
+      "plate": "BMW 18",
+      "time": "2021-05-13T05:23:08Z",
+      "location": "MV12-Alvin's home",
+      "id": 248
+    },
+    {
+      "plate": "BMW 18",
+      "time": "2021-05-13T05:23:08Z",
+      "location": "MV12-Alvin's home",
+      "id": 249
+    },
+    {
+      "plate": "BMW 18",
+      "time": "2021-05-13T05:23:08Z",
+      "location": "MV12-Alvin's home",
+      "id": 250
     }
   ]
 }
