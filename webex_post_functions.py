@@ -7,11 +7,12 @@ from flask import Flask, request
 
 
 #WebEx Authorization Token
-access_token = "MmIxZDBmOTctZWU5Yi00YjM4LWI0OGItYTM0NmVlOTI5ZWYwYTA0OTBjZTUtMTVm_PF84_1eb65fdf-9643-417f-9974-ad72cae0e10f"
+access_token = ""
 
 
 #RoomId of the bot and the space where you wanna enter the message
-id = "Y2lzY29zcGFyazovL3VzL1JPT00vMzMwMjhlZjAtYjNhYS0xMWViLTlhNGYtMDdjOWE1ODk1MDdl"
+id = ""
+
 api = WebexTeamsAPI(access_token)
 
 
@@ -20,12 +21,12 @@ app = Flask(__name__)
 
 
 #URL for webhook
-target_url = "https://dd2287283a92.ngrok.io/webhook"
+target_url = ""
 
 
 
 def send_detected_notification(snapResponse, searchOrder, detectedPlate):
-    #Pass teh URL, some boolean value for Manual Detection vs Successful Detection
+    #Pass the URL, some boolean value for Manual Detection vs Successful Detection
     CARD_CONTENT = {
 
         "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
@@ -104,7 +105,8 @@ def send_detected_notification(snapResponse, searchOrder, detectedPlate):
                          "content": CARD_CONTENT
                         }],)
 
-    elif:
+    else:
+        
         CARD_CONTENT["body"][1]["text"] = "Please check the order manually"
         url=snapResponse['url']
         api.messages.create(
@@ -116,6 +118,7 @@ def send_detected_notification(snapResponse, searchOrder, detectedPlate):
                     )
 
 
+        
 def create_webhook():
     """
     Create the Webex Teams webhooks we need for the bot
@@ -141,7 +144,6 @@ def delete_webhooks():
 
 
 
-
 def respond_to_button_press(webhook):
     """
     Respond to a button press on the card we posted
@@ -157,7 +159,6 @@ def respond_to_button_press(webhook):
         print(serviced)
 
     delete_webhooks()
-
 
 
 
