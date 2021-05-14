@@ -154,9 +154,11 @@ def respond_to_button_press(webhook):
         print(serviced)
         #Create a function to change the value in the database
 
-    elif attachment_action.inputs['type'] == "orderDiscard" :                 #attachment_action.data.id.type
+    elif attachment_action.inputs['type'] == "orderDiscard" :                 
         serviced = False
         print(serviced)
+        
+        # Call a function here to change the "serviced" value in the database #
 
     delete_webhooks()
 
