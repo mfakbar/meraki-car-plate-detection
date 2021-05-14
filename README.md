@@ -17,7 +17,8 @@ This code run a local server that will recognize a car registration plate whenev
 - [JSON-server](https://github.com/typicode/json-server)
 - [ngrok](https://ngrok.com/download)
 - [Meraki Dashboard API](https://pypi.org/project/meraki/)
-- [WebEx Bot](https://developer.webex.com)
+- [WebEx Bot](https://developer.webex.com) 
+- [WebEx Adaptive Cards](https://developer.webex.com/buttons-and-cards-designer)
 
 ## Google Vision API setup
 - [OCR guide](https://cloud.google.com/vision/docs/ocr)
