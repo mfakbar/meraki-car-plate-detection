@@ -6,6 +6,7 @@ import time
 import os
 from dotenv import load_dotenv
 from db_functions import *
+from webex_post_functions import *
 from plate_detection_functions import *
 from webexteamssdk import WebexTeamsAPI
 
@@ -194,7 +195,7 @@ def webhook():
                         continue
 
                 # post result as webex notification
-                PostToWebex(snapResponse, searchOrder, detectedPlate)
+                send_detected_notification(snapResponse, searchOrder, detectedPlate)
 
             else:
                 print('Not a motion alert. Failed to generate snapshot url.')
@@ -205,11 +206,17 @@ def webhook():
             runScript = True
             return Response(status=200)
 
+        
+        if payload['resource'] == 'attachmentActions'
+            print('Trigger from webex card received!!')
+
         else:
             print('Invalid Meraki secret key')
 
     else:
         abort(400, 'Unauthorized action')
+
+
 
 
 # run Flask server

@@ -24,7 +24,7 @@
       "qty": 3,
       "car_plate": "T-XXX-DEVNET",
       "time": "2021-04-23T08:09:46Z",
-      "Serviced": false
+      "serviced": false
     },
     {
       "id": 2,
@@ -33,7 +33,7 @@
       "qty": 3,
       "car_plate": "MY70 BMW",
       "time": "2021-04-23T08:09:46Z",
-      "Serviced": false
+      "serviced": false
     },
     {
       "id": 3,
@@ -42,7 +42,7 @@
       "qty": 3,
       "car_plate": "MY70 BMW",
       "time": "2021-04-23T08:09:46Z",
-      "Serviced": false
+      "serviced": false
     },
     {
       "customer": "Bob",
@@ -51,7 +51,7 @@
       "car_plate": "MY70 BMW",
       "time": "2021-04-23T08:09:46Z",
       "id": 4,
-      "Serviced": false
+      "serviced": false
     },
     {
       "customer": "Akbar",
@@ -60,7 +60,7 @@
       "car_plate": "MY70 BMW",
       "time": "2021-04-23T08:09:46Z",
       "id": 5,
-      "Serviced": false
+      "serviced": false
     },
     {
       "customer": "Akbar",
@@ -69,7 +69,7 @@
       "car_plate": "MY70 BMW",
       "time": "2021-04-23T08:09:46Z",
       "id": 6,
-      "Serviced": false
+      "serviced": false
     },
     {
       "customer": "Akbar",
@@ -78,7 +78,7 @@
       "car_plate": "BMW I8",
       "time": "2021-04-23T08:09:46Z",
       "id": 7,
-      "Serviced": false
+      "serviced": false
     },
     {
       "customer": "Akbar",
@@ -87,7 +87,7 @@
       "car_plate": "BMW IB",
       "time": "2021-04-23T08:09:46Z",
       "id": 8,
-      "Serviced": false
+      "serviced": false
     },
     {
       "customer": "Akbar",
@@ -96,7 +96,7 @@
       "car_plate": "BMW 1B",
       "time": "2021-04-23T08:09:46Z",
       "id": 9,
-      "Serviced": false
+      "serviced": false
     },
     {
       "customer": "Akbar",
@@ -105,7 +105,7 @@
       "car_plate": "BMW 18",
       "time": "2021-04-23T08:09:46Z",
       "id": 10,
-      "Serviced": false
+      "serviced": false
     },
     {
       "customer": "Akbar",
@@ -114,7 +114,7 @@
       "car_plate": "BMW 8",
       "time": "2021-04-23T08:09:46Z",
       "id": 11,
-      "Serviced": false
+      "serviced": false
     },
     {
       "customer": "Akbar",
@@ -123,7 +123,7 @@
       "car_plate": "BMW 10",
       "time": "2021-04-23T08:09:46Z",
       "id": 12,
-      "Serviced": false
+      "serviced": false
     },
     {
       "customer": "Akbar",
@@ -132,7 +132,7 @@
       "car_plate": "BMW I0",
       "time": "2021-04-23T08:09:46Z",
       "id": 13,
-      "Serviced": false
+      "serviced": false
     },
     {
       "customer": "Akbar",
@@ -141,7 +141,7 @@
       "car_plate": "CZ20 FSE",
       "time": "2021-04-23T08:09:46Z",
       "id": 14,
-      "Serviced": false
+      "serviced": false
     },
     {
       "customer": "Bob",
@@ -150,7 +150,7 @@
       "car_plate": "CZ20 FSE",
       "time": "2021-04-24T08:09:46Z",
       "id": 15,
-      "Serviced": false
+      "serviced": false
     }
   ],
   "car_event": [

@@ -4,6 +4,7 @@ import json
 from datetime import datetime, timedelta
 
 
+
 # store car event to database
 def car_to_db(url, plate, time, location):
 
