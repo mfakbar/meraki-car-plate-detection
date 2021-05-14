@@ -6,9 +6,9 @@ import time
 import os
 from dotenv import load_dotenv
 from db_functions import *
+from webex_post_functions import *
 from plate_detection_functions import *
 from webexteamssdk import WebexTeamsAPI
-
 
 # search .env file and load environment variable
 load_dotenv()
@@ -22,14 +22,106 @@ dbCarUrl = DB_HOST+'/car_event'
 dbOrderUrl = DB_HOST+'/order'
 
 # webex destination
-webexTo = 'webex email here'
+#webexTo = 'Y2lzY29zcGFyazovL3VzL1JPT00vYWIxYjczMTAtOTFmNS0xMWViLWFiNDctZDc2MTU5NmE4ZGE4'
+webexTo = 'hungl2@cisco.com'
+webexRecipients = ['hungl2@cisco.com', 'swsingh3@cisco.com', 'alvlau@cisco.com']
 
 # boolean for filtering webhooks
 runScript = True
 waitTime = 10  # seconds
+intervalTime = 2  # seconds
 
 # Flask server setup
 app = Flask(__name__)
+
+# take a snapshot and return the snapshot resonponse
+def SnapshotAndUri(deviceSerial, occurredAt, snapTime):
+    # generate snapshot and perform analysis
+    mvDashboard = meraki.DashboardAPI(MV_API_KEY)
+    snapResponse = mvDashboard.camera.generateDeviceCameraSnapshot(
+        deviceSerial, timestamp=snapTime)
+    print("Snapshot url is generated = ", snapResponse,
+          '\nMotion occured at = ', occurredAt,
+          '\nStable snapshot taken at = ', snapTime)
+    # check if the url is accessible
+    for _ in range(5):
+        # wait for a short time until the snapshot is available
+        time.sleep(3)
+        # check if snapshot is accessible
+        image_response = requests.get(snapResponse['url'])
+        # If HTTP code 200 (OK) is returned, quit the loop and continue
+        if image_response.status_code == 200:
+            return snapResponse
+            break
+        else:
+            print(
+                f"Could not access snapshot for camera {deviceSerial} right now. Wait for 3 sec.")
+        continue
+
+# filter the snapshot with label, if car or registration plate is detected, return true.
+def VisionFiltering(url):
+    # extracting labels from snapshot url
+    detectedLabel = detect_labels_uri(url)
+    print("Snapshot labels detected = ", detectedLabel)
+    # filter the snapshot with labels
+    labelList = ['Vehicle', 'Vehicle registration plate', 'Car']
+    boolResult = filter_labels(detectedLabel, labelList)
+    return boolResult
+
+# Post notification to WebexTeamsAPI
+def PostToWebex(snapResponse, searchOrder, detectedPlate):
+    # Webex API
+    webexAPI = WebexTeamsAPI(access_token=WEBEX_TOKEN)
+
+    # if car plate and order information match, send notification to webex
+    if detectedPlate != []:
+        for plate in detectedPlate:
+            if searchOrder != []:
+                # Notify WebEx
+                try:
+                    teams_message = "Your customer, {}".format(
+                        searchOrder['customer'])
+                    teams_message += " , with car plate number: {}".format(
+                        searchOrder['car_plate'])
+                    teams_message += "has arrived \n \n"
+                    teams_message += "Image of the car detected: {}\n".format(
+                        snapResponse['url'])
+                except Exception as e:
+                    teams_message = 'The server received a webhook but there was a Webex error'
+
+                webexAPI.messages.create(
+                    toPersonEmail=webexTo, markdown=teams_message)
+                #send notification to a list of recipients
+                for member in webexRecipients:
+                    webexAPI.messages.create(
+                        toPersonEmail=member, markdown=teams_message)
+
+            else:
+                print("No order information match with ", plate)
+                # if there is no match, send url image to webex for manual investigation
+                # send to dedicated space
+                try:
+                    teams_message = "Error!! There was no match: {}\n".format(
+                        plate)
+                    teams_message += "Image of the car detected: {}\n".format(
+                        snapResponse['url'])
+                except Exception as e:
+                    teams_message = 'The server received a webhook but there was a Webex error'
+
+                webexAPI.messages.create(
+                    toPersonEmail=webexTo, markdown=teams_message)
+    #if no car plate was detected, send in snapshot url of motion event for manual investigation
+    else:
+        print("no car plate detected")
+        try:
+            teams_message = "No vehicle registration plate detected:\n"
+            teams_message += "Image of the motion event: {}\n".format(
+                snapResponse['url'])
+        except Exception as e:
+            teams_message = 'The server received a webhook but there was a Webex error'
+
+        webexAPI.messages.create(
+            toPersonEmail=webexTo, markdown=teams_message)
 
 
 @app.route('/webhook', methods=['POST'])
@@ -57,111 +149,74 @@ def webhook():
             time.sleep(waitTime)
             snapTime = addSeconds(occurredAt, waitTime)
 
-            # generate snapshot url
+            # if motion_alert is received
             if alertTypeId == 'motion_alert':
-                mvDashboard = meraki.DashboardAPI(MV_API_KEY)
-                snapResponse = mvDashboard.camera.generateDeviceCameraSnapshot(
-                    deviceSerial, timestamp=snapTime)
-                print("Snapshot url is generated = ", snapResponse,
-                      '\nMotion occured at = ', occurredAt,
-                      '\nStable snapshot taken at = ', snapTime)
+                searchOrder = []
+                detectedPlate = []
+
+                # then take 5 snapshots
+                for _ in range(5):
+                    snapResponse = SnapshotAndUri(
+                        deviceSerial, occurredAt, snapTime)
+                    # filter the snapshot for vehicle and carplate
+                    filterResult = VisionFiltering(snapResponse['url'])
+
+                    #if there are relevant labels detected, run plate recognition
+                    if filterResult == True:
+                        # detecting car plate from snapshot url
+                        detectedPlate = detect_text_uri(snapResponse['url'])
+                        print("Car plate detected = ", detectedPlate)
+
+                        # loop through the text detection result
+                        for plate in detectedPlate:
+                            # store car event to a database
+                            newCarEntry = car_to_db(
+                                dbCarUrl, plate, snapTime, deviceName)
+                            print('New car entry has been stored in DB = ', newCarEntry)
+
+                            #search for a plate match in the order datbase
+                            queryParam = '?car_plate=' + plate + \
+                                '&_sort=id&_order=desc&_limit=1'  # search car plate by most recent entry
+                            searchOrder = get_order(dbOrderUrl + queryParam)
+
+                            #if there is an order match, break from the loop
+                            if searchOrder != []:
+                                break
+                            #if there is no order match, wait a while and take the snapshot again
+                            else:
+                                time.sleep(intervalTime)
+                                snapTime = addSeconds(snapTime, intervalTime)
+                                continue
+
+                    # if no label is detected, wait and take snapshot again
+                    else:
+                        time.sleep(intervalTime)
+                        snapTime = addSeconds(snapTime, intervalTime)
+                        continue
+
+                # post result as webex notification
+                send_detected_notification(snapResponse, searchOrder, detectedPlate)
+
             else:
                 print('Not a motion alert. Failed to generate snapshot url.')
+                runScript = True
                 exit()
-            # check if the url is accessible
-            for _ in range(5):
-                # wait for a short time until the snapshot is available
-                time.sleep(3)
-                # check if snapshot is accessible
-                image_response = requests.get(snapResponse['url'])
-                # If HTTP code 200 (OK) is returned, quit the loop and continue
-                if image_response.status_code == 200:
-                    break
-                else:
-                    print(
-                        f"Could not access snapshot for camera {deviceSerial} right now. Wait for 3 sec.")
-                continue
-
-            # detecting car plate from snapshot url
-            detectedPlate = detect_text_uri(snapResponse['url'])
-            print("Car plate detected = ", detectedPlate)
-
-            # extracting labels from snapshot url
-            detectedLabel = detect_labels_uri(snapResponse['url'])
-            print("Snapshot labels detected = ", detectedLabel)
-
-            # filter the snapshot with labels
-            labelList = ['Vehicle', 'Vehicle registration plate', 'Car']
-
-            # Webex API
-            webexAPI = WebexTeamsAPI(access_token=WEBEX_TOKEN)
-
-            # if car plate is not detected, send snapshot url to webex for manual check. Using dedicated space.
-            # to minimize overhead, notification only include car/vehicle-related label
-            # labelCheck = filter_labels(detectedLabel, labelList)
-            # if detectedPlate == [] and labelCheck is True:
-            ### to-do: send url image to webex for manual investigation / security reason ###
-
-            # if car plate is detected, run series of process:
-            # store car event in database > check order information > send webex notification
-            # if detectedPlate != []:
-            for plate in detectedPlate:
-
-                # store car event to database
-                newCarEntry = car_to_db(dbCarUrl, plate,
-                                        occurredAt, deviceName)
-                print('New car entry has been stored in DB = ', newCarEntry)
-
-                # check if the detected car plate relate to existing order database
-                queryParam = '?car_plate=' + plate + \
-                    '&_sort=id&_order=desc&_limit=1'  # search car plate by most recent entry
-                searchOrder = get_order(dbOrderUrl + queryParam)
-
-                # if car plate and order information match, send notification to webex
-                if searchOrder != []:
-                    print('The most recent order that match ',
-                          plate, '= ', searchOrder)
-
-                    # Notify WebEx
-                    try:
-                        teams_message = "Your customer, {}".format(
-                            searchOrder['customer'])
-                        teams_message += " , with car plate number: {}".format(
-                            searchOrder['car_plate'])
-                        teams_message += "has arrived \n \n"
-                        teams_message += "Image of the car detected: {}\n".format(
-                            snapResponse['url'])
-                    except Exception as e:
-                        teams_message = 'The server received a webhook but there was a Webex error'
-
-                    webexAPI.messages.create(
-                        toPersonEmail=webexTo, markdown=teams_message)
-
-                else:
-                    print("No order information match with ", plate)
-                    # if there is no match, send url image to webex for manual investigation
-                    # send to dedicated space
-                    try:
-                        teams_message = "Error!! There was no match: {}\n".format(
-                            plate)
-                        teams_message += "Image of the car detected: {}\n".format(
-                            snapResponse['url'])
-                    except Exception as e:
-                        teams_message = 'The server received a webhook but there was a Webex error'
-
-                    webexAPI.messages.create(
-                        toPersonEmail=webexTo, markdown=teams_message)
 
             # reset the runScript for the next car event
             runScript = True
-
             return Response(status=200)
+
+        
+        if payload['resource'] == 'attachmentActions'
+            print('Trigger from webex card received!!')
 
         else:
             print('Invalid Meraki secret key')
 
     else:
         abort(400, 'Unauthorized action')
+
+
 
 
 # run Flask server
