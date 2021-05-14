@@ -93,8 +93,7 @@ def send_detected_notification(snapResponse, searchOrder, detectedPlate):
     if detectedPlate != []:
         for plate in detectedPlate:
             if searchOrder != []:
-                #url=snapResponse['url']
-                url = "https://www.webex.com/content/dam/wbx/us/images/hp/webexone/10x.png"
+                url=snapResponse['url']
                 CARD_CONTENT["body"][2]["images"][0]["url"] = url
 
                 api.messages.create(
