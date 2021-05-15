@@ -6,6 +6,7 @@ cachetools==4.2.2
 certifi==2020.12.5
 chardet==4.0.0
 click==7.1.2
+DateTime==4.3
 Flask==1.1.2
 future==0.18.2
 google-api-core==1.26.3
@@ -38,4 +39,6 @@ typing-extensions==3.7.4.3
 urllib3==1.26.4
 webexteamssdk==1.6
 Werkzeug==1.0.1
+wget==3.2
 yarl==1.6.3
+zope.interface==5.4.0
