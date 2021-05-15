@@ -160,6 +160,286 @@ def postToWebex_noPlate(snapResponse, room_id):
     webexAPI.messages.create(
         roomId=room_id, markdown=teams_message)
 
+
+# webex card payload
+CARD_CONTENT = {
+    "type": "AdaptiveCard",
+    "body": [
+        {
+            "type": "ColumnSet",
+            "columns": [
+                {
+                    "type": "Column",
+                    "items": [
+                        {
+                            "type": "Image",
+                            "url": "Icon image url",  # parameter
+                            "size": "Medium",
+                            "height": "50px",
+                            "backgroundColor": "White"
+                        }
+                    ],
+                    "width": "auto"
+                },
+                {
+                    "type": "Column",
+                    "items": [
+                        {
+                            "type": "TextBlock",
+                            "text": "Meraki Car Plate Detection",
+                            "color": "Good",
+                            "size": "Small",
+                            "weight": "Lighter"
+                        },
+                        {
+                            "type": "TextBlock",
+                            "text": "CUSTOMER HAS ARRIVED",  # parameter
+                            "wrap": True,
+                            "color": "Accent",  # parameter
+                            "size": "Medium",
+                            "spacing": "Small",
+                            "weight": "Bolder"
+                        }
+                    ],
+                    "width": "stretch"
+                }
+            ]
+        },
+        {
+            "type": "ColumnSet",
+            "columns": [
+                {
+                    "type": "Column",
+                    "width": 35,
+                    "items": [
+                        {
+                            "type": "TextBlock",
+                            "text": "Car plate:",
+                            "color": "Light"
+                        },
+                        {
+                            "type": "TextBlock",
+                            "text": "Name:",
+                            "weight": "Lighter",
+                            "color": "Light",
+                            "spacing": "Small"
+                        },
+                        {
+                            "type": "TextBlock",
+                            "text": "Menu / Qty:",
+                            "weight": "Lighter",
+                            "color": "Light",
+                            "spacing": "Small"
+                        },
+                        {
+                            "type": "TextBlock",
+                            "text": "Date order / ID:",
+                            "weight": "Lighter",
+                            "color": "Light",
+                            "spacing": "Small"
+                        }
+                    ]
+                },
+                {
+                    "type": "Column",
+                    "width": 65,
+                    "items": [
+                        {
+                            "type": "TextBlock",
+                            "text": "[BMW I8]()",  # parameter
+                            "color": "Light"
+                        },
+                        {
+                            "type": "TextBlock",
+                            "text": "Bob",  # parameter
+                            "color": "Light",
+                            "weight": "Lighter",
+                            "spacing": "Small"
+                        },
+                        {
+                            "type": "TextBlock",
+                            "text": "Burger / 2",  # parameter
+                            "weight": "Lighter",
+                            "color": "Light",
+                            "spacing": "Small"
+                        },
+                        {
+                            "type": "TextBlock",
+                            "text": "18 May 2021",  # parameter
+                            "weight": "Lighter",
+                            "color": "Light",
+                            "spacing": "Small"
+                        }
+                    ]
+                }
+            ],
+            "spacing": "Padding",
+            "horizontalAlignment": "Center"
+        },
+        {
+            "type": "Image",
+            "url": "image_url"  # parameter
+        },
+        {
+            "type": "ActionSet",
+            "actions": [
+                {
+                    "type": "Action.Submit",
+                    "title": "Process Order",
+                    "data": {
+                        "orderId": "order_id",  # parameter
+                        "type": "orderProcessed"
+                    },
+                    "style": "positive"
+                },
+                {
+                    "type": "Action.Submit",
+                    "title": "Discard Order",
+                    "data": {
+                        "orderId": "order_id",  # parameter
+                        "type": "orderDiscarded"
+                    },
+                    "style": "positive"
+                }
+            ],
+            "spacing": "None"
+        }
+    ],
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "version": "1.2"
+}
+
+
+# post webex card as notification
+def postCard_plateDetected(snapResponse, searchOrder, plate, room_id):
+
+    if searchOrder != []:
+        iconUrl = "https://www.shareicon.net/data/128x128/2016/10/11/842378_multimedia_512x512.png"
+        timeObj = timeStrToObj(searchOrder['time'])
+
+        # payload parameter
+        CARD_CONTENT["body"][0]["columns"][0]["items"][0]['url'] = iconUrl
+        CARD_CONTENT["body"][0]["columns"][1]["items"][1]['text'] = "CUSTOMER HAS ARRIVED"
+        CARD_CONTENT["body"][0]["columns"][1]["items"][1]['color'] = "Accent"
+        CARD_CONTENT["body"][1]["columns"][1]["items"][0]['text'] = '[' + \
+            plate + '](' + snapResponse['url'] + ')'
+        CARD_CONTENT["body"][1]["columns"][1]["items"][1]['text'] = searchOrder['customer']
+        CARD_CONTENT["body"][1]["columns"][1]["items"][2]['text'] = searchOrder['menu'] + \
+            ' / ' + str(searchOrder['qty'])
+        CARD_CONTENT["body"][1]["columns"][1]["items"][3]['text'] = timeObj.strftime(
+            "%d-%b-%Y (%H:%M)") + ' / #' + str(searchOrder['id'])
+        CARD_CONTENT["body"][2]["url"] = snapResponse['url']
+
+        # input order id
+        CARD_CONTENT["body"][3]["actions"][0]["data"]["orderId"] = str(
+            searchOrder['id'])
+        CARD_CONTENT["body"][3]["actions"][1]["data"]["orderId"] = str(
+            searchOrder['id'])
+
+        webexAPI.messages.create(
+            roomId=room_id,
+            text="If you see this your client cannot render cards",
+            attachments=[{
+                "contentType": "application/vnd.microsoft.card.adaptive",
+                "content": CARD_CONTENT
+            }]
+        )
+
+    else:
+        iconUrl = "https://findicons.com/files/icons/1671/simplicio/128/notification_warning.png"
+
+        # payload parameter
+        CARD_CONTENT["body"][0]["columns"][0]["items"][0]['url'] = iconUrl
+        CARD_CONTENT["body"][0]["columns"][1]["items"][1]['text'] = "CAR PLATE DETECTED BUT NO ORDER MATCH"
+        CARD_CONTENT["body"][0]["columns"][1]["items"][1]['color'] = "Attention"
+        CARD_CONTENT["body"][1]["columns"][1]["items"][0][
+            'text'] = '[' + plate + '](' + snapResponse['url'] + ')'
+        CARD_CONTENT["body"][1]["columns"][1]["items"][1][
+            'text'] = "[Check DB manually](" + DB_HOST + ")"
+        CARD_CONTENT["body"][1]["columns"][1]["items"][2][
+            'text'] = "[Check DB manually](" + DB_HOST + ")"
+        CARD_CONTENT["body"][1]["columns"][1]["items"][3][
+            'text'] = "[Check DB manually](" + DB_HOST + ")"
+        CARD_CONTENT["body"][2]["url"] = snapResponse['url']
+
+        webexAPI.messages.create(
+            roomId=room_id,
+            text="If you see this your client cannot render cards",
+            attachments=[{
+                "contentType": "application/vnd.microsoft.card.adaptive",
+                "content": CARD_CONTENT
+            }]
+        )
+
+
+# post webex card as notification, if there is no plate detected
+def postCard_noPlate(snapResponse, room_id):
+    iconUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTPj1GNmlY8kDIjgTtZMmE-M4luNDMMRZbOQ&usqp=CAU"
+
+    CARD_CONTENT["body"][0]["columns"][0]["items"][0]['url'] = iconUrl
+    CARD_CONTENT["body"][0]["columns"][1]["items"][1]['text'] = "VEHICLE MOTION DETECTED BUT FAILED TO RECOGNIZE CAR PLATE"
+    CARD_CONTENT["body"][0]["columns"][1]["items"][1]['color'] = "Warning"
+    CARD_CONTENT["body"][1]["columns"][1]["items"][0][
+        'text'] = "[Check DB manually](" + DB_HOST + ")"
+    CARD_CONTENT["body"][1]["columns"][1]["items"][1][
+        'text'] = "[Check DB manually](" + DB_HOST + ")"
+    CARD_CONTENT["body"][1]["columns"][1]["items"][2][
+        'text'] = "[Check DB manually](" + DB_HOST + ")"
+    CARD_CONTENT["body"][1]["columns"][1]["items"][3]['text'] = "N/A"
+    CARD_CONTENT["body"][2]["url"] = snapResponse['url']
+
+    webexAPI.messages.create(
+        roomId=room_id,
+        text="If you see this your client cannot render cards",
+        attachments=[{
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "content": CARD_CONTENT
+        }]
+    )
+
+
+# create webex webhook to subscribe to card action
+def create_webhook(room_id, target_url):
+    print("Creating new webhook..")
+    webexAPI.webhooks.create(
+        name="Card action: Car plate detected",
+        resource="attachmentActions",
+        event="created",
+        filter="roomId=" + room_id,
+        targetUrl=target_url
+    )
+    return print("Webhook created: Subscribed to card action event")
+
+
+def delete_webhooks():
+    """
+    List all webhooks and delete the webhooks
+    """
+    for webhook in webexAPI.webhooks.list():
+        print("Deleting Webhook:", webhook.name, webhook.targetUrl)
+        webexAPI.webhooks.delete(webhook.id)
+    return print("All webhooks have been deleted")
+
+
+# when card action is pressed > change serviced status in db
+def respond_to_button_press(webhook_obj):
+    """
+    Respond to a button press on the card we posted
+    """
+    attachment_action = webexAPI.attachment_actions.get(webhook_obj.data.id)
+    orderId = attachment_action.inputs['orderId']
+
+    # change the serviced value in the database
+    if attachment_action.inputs['type'] == "orderProcessed":
+        serviced = True
+        updateServicedStatus(orderId, serviced)
+        print("Serviced updated: ", serviced)
+
+    elif attachment_action.inputs['type'] == "orderDiscarded":
+        serviced = False
+        updateServicedStatus(orderId, serviced)
+        print("Serviced updated: ", serviced)
+
 ###########################################################################################
 # ------------------------------------GOOGLE VISION API------------------------------------
 # detect text from image url
@@ -315,3 +595,25 @@ def getOrder(plate):
         print('There is no order match for ', plate, ' plate')
 
     return response.json()[0] if response.json() != [] else response.json()
+
+
+def updateServicedStatus(orderId, serviced):
+    dbOrderUrl = DB_HOST+'/order/'+orderId
+
+    payload = json.dumps({
+        "serviced": serviced
+    })
+
+    headers = {
+        'Content-Type': 'application/json'
+    }
+
+    response = requests.request(
+        "PATCH", dbOrderUrl, headers=headers, data=payload)
+
+    if response.status_code == 200:
+        print('Serviced status has been changed = ', response.json())
+    else:
+        print('Could not change serviced status')
+
+    return response.json()

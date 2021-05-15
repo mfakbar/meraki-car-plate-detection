@@ -5,7 +5,6 @@ import time
 import os
 from dotenv import load_dotenv
 from functions import *
-from webex_post_functions_copy import *
 
 # search .env file and load environment variable
 load_dotenv()
@@ -22,10 +21,11 @@ intervalTime = 4
 runScript = True
 
 # Flask server setup
-app = Flask(__name__)
+mainApp = Flask(__name__)
+mainApp.debug = True
 
 
-@app.route('/webhook', methods=['POST'])
+@mainApp.route('/webhook', methods=['POST'])
 def webhook():
     global runScript
     if request.method == 'POST' and request.headers['Content-Type'] == 'application/json' and runScript == True:
@@ -49,12 +49,12 @@ def webhook():
             for i in range(3):
                 print('---------HERE COMES SNAPSHOT LOOP #%d---------' % i)
                 # generate snapshot url
-                # snapResponse = snapshotAndUri(
-                #     deviceSerial, occurredAt, snapTime)
+                snapResponse = snapshotAndUri(
+                    deviceSerial, occurredAt, snapTime)
 
                 # for testing without meraki camera
-                snapResponse = {'url': ''}
-                snapResponse['url'] = 'https://cdn.carreg.co.uk/assets/media/564-dvla-70-series-number-plates.jpg'
+                # snapResponse = {'url': ''}
+                # snapResponse['url'] = 'https://assets.publishing.service.gov.uk/government/uploads/system/uploads/image_data/file/110487/s960_960-green-number-plate.jpg'
 
                 # filter the snapshot for vehicle and car plate
                 filterResult = visionFiltering(snapResponse['url'])
@@ -108,9 +108,6 @@ def webhook():
                     searchOrder = getOrder(plate)
 
                     # post to webex. the message will be different based on whether a plate match an order or not
-                    # postToWebex_plateDetected(
-                    #     snapResponse, searchOrder, plate, WEBEX_ROOM_ID)
-
                     postCard_plateDetected(
                         snapResponse, searchOrder, plate, WEBEX_ROOM_ID)
 
@@ -134,4 +131,4 @@ def webhook():
 
 # run Flask server
 if __name__ == '__main__':
-    app.run(debug=True)
+    mainApp.run()
