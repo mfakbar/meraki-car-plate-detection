@@ -5,16 +5,17 @@ import time
 import os
 from dotenv import load_dotenv
 from functions import *
+from webexteamssdk import Webhook
 
 # search .env file and load environment variable
 load_dotenv()
 MV_SHARED_KEY = os.getenv('MV_SHARED_KEY')
 
 # webex destination
-WEBEX_ROOM_ID = 'Y2lzY29zcGFyazovL3VzL1JPT00vZWNhYzZiYjAtYjJmMC0xMWViLThhYmUtZGY3OTM3ZTg1ZTAw'
+WEBEX_ROOM_ID = "Y2lzY29zcGFyazovL3VzL1JPT00vZWNhYzZiYjAtYjJmMC0xMWViLThhYmUtZGY3OTM3ZTg1ZTAw"
 
 # snapshot timing in seconds
-waitTime = 10
+waitTime = 12
 intervalTime = 4
 
 # boolean for filtering webhooks
@@ -95,7 +96,7 @@ def webhook():
 
             # if there is relevant labels but car plate is not detected at all, send snapshot url to webex for manual check, using a dedicated space
             if filterResult == True and detectedPlate == []:
-                postToWebex_noPlate(snapResponse, WEBEX_ROOM_ID)
+                postCard_noPlate(snapResponse, WEBEX_ROOM_ID)
 
             # if there is relevant labels and a car plate is detected, store car event in database, then send webex notification
             elif filterResult == True and detectedPlate != []:
@@ -127,6 +128,17 @@ def webhook():
     else:
         print('Unauthorized action, or webhook is filtered by runScript')
         abort(400, 'Unauthorized action, or webhook is filtered by runScript boolean')
+
+
+@mainApp.route("/card_action", methods=["POST"])
+def card_action():
+    webhook_obj = Webhook(request.json)
+    # print(webhook_obj)
+    # print(request.json)
+
+    # change serviced status in db
+    respond_to_button_press(webhook_obj)
+    return Response(status=200)
 
 
 # run Flask server
