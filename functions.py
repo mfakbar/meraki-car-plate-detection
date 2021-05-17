@@ -433,11 +433,13 @@ def respond_to_button_press(webhook_obj):
     if attachment_action.inputs['type'] == "orderProcessed":
         serviced = True
         updateServicedStatus(orderId, serviced)
+        api.messages.delete(attachment_action.messageId)
         print("Serviced updated: ", serviced)
 
     elif attachment_action.inputs['type'] == "orderDiscarded":
         serviced = False
         updateServicedStatus(orderId, serviced)
+        api.messages.delete(attachment_action.messageId)
         print("Serviced updated: ", serviced)
 
 ###########################################################################################
