@@ -408,7 +408,7 @@ def create_webhook(room_id, target_url):
         filter="roomId=" + room_id,
         targetUrl=target_url
     )
-    return print("Webhook created: Subscribed to card action event")
+    return print("Webhook created: Subscribed to card action event on roomId ", room_id)
 
 
 def delete_webhooks():
