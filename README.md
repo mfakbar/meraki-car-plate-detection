@@ -8,7 +8,7 @@ This code run a local server that will recognize a car registration plate whenev
 - Messaging: Webex
 
 ## Workflow
-![Image of workflow](https://github.com/mfakbar/meraki-car-plate-detection/blob/main/workflow-diagram.jpg)
+<img src="https://github.com/mfakbar/meraki-car-plate-detection/blob/main/workflow-diagram.jpg" width=100%>
 
 # Getting started
 ## Requirements
@@ -60,5 +60,5 @@ This code run a local server that will recognize a car registration plate whenev
 ### Receiving Webex card button (actions) webhook
 1. Create Webex webhook to subscribe to card button action by running `create_webex_webhook.py`, or by using [webhook creation](https://developer.webex.com/docs/api/v1/webhooks/create-a-webhook)  in developer website.
 2. Once the webhook is created, test it by pressing Process Order or Discard Order button in Webex notification card. It should change the `serviced` status in the JSON-server order database.
-
-   ![Image of workflow](https://github.com/mfakbar/meraki-car-plate-detection/blob/main/notification-sample.png)
+   
+   <img src="https://github.com/mfakbar/meraki-car-plate-detection/blob/main/notification-sample.png" width="400" height="400">
