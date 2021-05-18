@@ -12,7 +12,7 @@ load_dotenv()
 MV_SHARED_KEY = os.getenv('MV_SHARED_KEY')
 
 # webex destination
-WEBEX_ROOM_ID = "Y2lzY29zcGFyazovL3VzL1JPT00vZWNhYzZiYjAtYjJmMC0xMWViLThhYmUtZGY3OTM3ZTg1ZTAw"
+WEBEX_ROOM_ID = os.getenv('WEBEX_ROOM_ID')
 
 # snapshot timing in seconds
 waitTime = 12
