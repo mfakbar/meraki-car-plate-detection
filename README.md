@@ -37,6 +37,7 @@ This code run a local server that will recognize a car registration plate whenev
    4. `GOOGLE_APPLICATION_CREDENTIALS = 'service-account-file.json'` > service account json file path. The file is generated when we setup the Google Vision API.
    5. `WEBEX_TOKEN = 'YOUR WEBEX BOT TOKEN'` > from New Bot [link](https://developer.webex.com/my-apps/new/bot) - Building Apps
    6. `WEBEX_ROOM_ID = 'YOUR WEBEX ROOM ID'` > Webex room where we want the notification to be sent. Room id can be found in [Webex room list](https://developer.webex.com/docs/api/v1/rooms/list-rooms).
+   7. `NGROK_URL = 'YOUR NGROK HTTPS ADDRESS'` > Address created in step 6.2.
 5. Run flask server
 
          python flask_server.py
@@ -45,7 +46,7 @@ This code run a local server that will recognize a car registration plate whenev
 
          ngrok http 5000
    1. This is based on which port the Flask server is running in step 5.1. In this example it is port 5000.
-   2. Once completed, we should be able to see publicly available link that translates the localhost address in step 5.1 to a publicly available https url (e.g., https://XXXXXXXXXXXX.ngrok.io).
+   2. Once completed, we should be able to see publicly available link that translates the localhost address in step 5.1 to a publicly available https url (e.g., https://XXXXXXXXXXXX.ngrok.io). Update the `NGROK_URL` in `.env` file with the same one.
 7. Set up Meraki webhook to subscribe to motion alert event in Meraki MV by going to Meraki dashboard >> Alerts >> Webhook setting >> insert the ngrok url from step 6.2 as webhook endpoint, with `/webhook` appended to the url (e.g., https://XXXXXXXXXXXX.ngrok.io/webhook).
    1. In the webhook option, set up a shared secret key and update the `MV_SHARED_KEY` in `.env` file with the same one.
    2. Still in the same page, add this new webhook profile to the custom recipient list for motion alerts.
